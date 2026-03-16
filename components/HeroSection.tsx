@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function HeroSection() {
   return (
     <div className="w-full">
@@ -31,9 +33,10 @@ export default function HeroSection() {
         </div>
          
             <div>
+           <Link href={"/products"}>
             <button className="bg-zinc-900 text-white px-10 py-3 uppercase tracking-wider font-semibold hover:bg-black transition">
                         Explore now
-                      </button>
+                      </button></Link>
             </div>
          
         </div>
@@ -76,10 +79,11 @@ export default function HeroSection() {
           <div className="p-12 flex flex-col items-end text-right h-full absolute inset-0">
            
 
-            <div className="mt-auto pb-12">
-              <button className="bg-zinc-900 text-white px-10 py-3 uppercase tracking-wider font-semibold hover:bg-black transition">
-                Explore Now
-              </button>
+           <div className="mt-auto pb-12">
+            <Link href={"/products"}> 
+ <button className="bg-zinc-900 text-white px-10 py-3 uppercase tracking-wider font-semibold hover:bg-black transition">
+                        Explore now
+                      </button></Link>
             </div>
           </div>
         </div>
