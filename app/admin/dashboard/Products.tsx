@@ -6,26 +6,24 @@
 import SkeletonLoading from "@/components/SkelitonLoading";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+  import { useRouter } from "next/navigation"
+import { ApiFetch } from "@/lib/ApiFetch";
 
 export default function ProductsGrid() {
 
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
 
+
+const router = useRouter()
+
   useEffect(() => {
 
     const fetchProducts = async () => {
 
-      const token = localStorage.getItem("access_token")
+    
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
+      const res = await ApiFetch("/api/products/")
 
       const data = await res.json()
 
@@ -50,9 +48,10 @@ export default function ProductsGrid() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-xl sm:text-2xl font-semibold mb-6 text-center"
+        className="text-xl sm:text-3xl font-semibold mb-6 text-center"
       >
-        Your Products
+        Your Products <br />
+        <span className="text-lg">You can edit them by clicking on them</span>
       </motion.h2>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -76,6 +75,7 @@ export default function ProductsGrid() {
               }}
               whileHover={{ scale: 1.03 }}
               className="bg-white border rounded-md overflow-hidden hover:shadow-lg transition"
+              onClick={()=>router.push(`/admin/edit/${product.id}`)}
             >
 
               <div className="aspect-square bg-gray-100">

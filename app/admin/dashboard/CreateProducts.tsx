@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
+import { ApiFetch } from "@/lib/ApiFetch"
+import Error from "next/error"
 
 export default function CreateProduct() {
 
@@ -81,16 +83,13 @@ export default function CreateProduct() {
       formData.append("images",img)
     })
 
-    await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products/create/`,
-      {
-        method:"POST",
-        headers:{
-          Authorization:`Bearer ${token}`
-        },
-        body:formData
-      }
-    )
+   const res = await ApiFetch("/api/products/create/", {
+  method: "POST",
+  body: formData
+})
+ if(!res.ok){
+  alert("upload failed"), Error
+ }
 
     alert("Product Created")
 
@@ -147,14 +146,25 @@ return (
             Price
           </label>
 
-          <input
-            type="number"
-            value={price}
-            onChange={(e)=>setPrice(e.target.value)}
-            placeholder="1200"
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4
-            focus:outline-none focus:ring-2 focus:ring-black/70 transition"
-          />
+         <input
+  type="number"
+   min="0"
+  value={price}
+  onChange={(e) => {
+
+    const value = e.target.value
+   
+
+    // allow only numbers + decimal
+    if (/^\d*\.?\d*$/.test(value)) {
+      setPrice(value)
+    }
+
+  }}
+  placeholder="1200"
+  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4
+  focus:outline-none focus:ring-2 focus:ring-black/70 transition"
+/>
         </div>
 
 

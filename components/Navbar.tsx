@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { ApiFetch } from "@/lib/ApiFetch";
 
 export default function Navbar() {
 
@@ -29,16 +30,9 @@ export default function Navbar() {
 
       try {
 
-        const token = localStorage.getItem("access_token");
+       
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/user/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const res = await ApiFetch("/api/auth/user/")
 
         if (!res.ok) return;
 
@@ -90,11 +84,11 @@ export default function Navbar() {
 
           <span className="text-gray-300">|</span>
 
-          <Link href="#">About</Link>
+          <a href="#about">About</a>
 
           <span className="text-gray-300">|</span>
 
-          <Link href="#">Contact</Link>
+         <a href="#contact">Contact</a>
 
         </div>
 
@@ -109,15 +103,15 @@ export default function Navbar() {
               <FloatingActionMenu
                 className="relative"
                 options={[
-                  {
-                    label: "Cart",
-                    Icon: <ShoppingCart className="w-4 h-4" />,
-                    onClick: () => console.log("Cart clicked"),
-                  },
+                   {
+                          label: "Cart",
+                          Icon:  <ShoppingCart className="w-4 h-4" />,
+                          onClick: () => router.push("/cart"),
+                        },
                   {
                     label: "Your Orders",
                     Icon: <BoxIcon className="w-4 h-4" />,
-                    onClick: () => console.log("Orders clicked"),
+                    onClick: () => router.push("/orders"),
                   },
                   {
                     label: "Logout",

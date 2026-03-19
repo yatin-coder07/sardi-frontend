@@ -1,23 +1,25 @@
 "use client"
+"force-dynamic"
 
 import Navbar from "@/components/Navbar"
 import SkeletonLoading from "@/components/SkelitonLoading"
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Search } from "lucide-react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { ApiFetch } from "@/lib/ApiFetch"
 
 export default function ProductsPage() {
 
   const [products, setProducts] = useState([])
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   const fetchProducts = async (query = "") => {
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products/?search=${query}`
-    )
-
+    const res = await ApiFetch(`/api/products/?search=${query}`)
     const data = await res.json()
 
     setProducts(data)
@@ -89,13 +91,16 @@ export default function ProductsPage() {
 
   <section>
 
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+>
 
       {products.map((product) => (
 
+      <Link href={`products/${product.id}`}>
         <div
           key={product.id}
           className="bg-white border rounded-md overflow-hidden hover:shadow-lg transition"
+             
         >
 
           {/* Product Image */}
@@ -125,7 +130,7 @@ export default function ProductsPage() {
 
           </div>
 
-        </div>
+        </div></Link>
 
       ))}
 
