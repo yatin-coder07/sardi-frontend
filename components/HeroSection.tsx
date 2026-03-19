@@ -1,90 +1,190 @@
-export default function HeroSection() {
-  return (
-    <div className="w-full">
+﻿'use client';
 
-      {/* HERO */}
-      <section className="relative w-full h-[110vh] bg-[#e5e5e5] overflow-hidden">
 
-        {/* Center model */}
-        <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover opacity-95 "
-      >
-        <source src="/model1video.mp4" type="video/mp4" />
-      </video>
+import { motion } from "framer-motion"
+import { useState, useEffect } from 'react';
+import ScrollExpandMedia from '@/components/scroll-expansion-hero';
+import { HoverSliderHero } from "./HoverSliderHero";
+import FooterDemo from "./Footer";
+import Link from "next/link";
+import { TestimonialsSectionDemo } from "./Testimonials";
 
-        {/* Text */}
-        <div className="absolute  top-1/2 -translate-y-1/2 w-full flex justify-between px-10 lg:px-20">
-        <div>
-           <h1 className="text-[clamp(4rem,10vw,8rem)] leading-[0.9] tracking-[-0.05em] font-bold text-zinc-800">
-            Sardi <br /> 
-          </h1>
-
-          <p className="text-zinc-600 mt-4 mb-8 max-w-md">
-            Discover the latest kurtis & express your style effortlessly.
-            Shop exclusive collections with premium designs.
-          </p>
-
-        </div>
-         
-            <div>
-            <button className="bg-zinc-900 text-white px-10 py-3 uppercase tracking-wider font-semibold hover:bg-black transition">
-                        Explore now
-                      </button>
-            </div>
-         
-        </div>
-      </section>
-
-      {/* CATEGORY SECTION */}
-      <section className="flex w-full min-h-screen ">
-
-        {/* LEFT BLOCK */}
-        <div
-          className="w-1/2 relative border-r border-gray-100 bg-cover bg-center pverflow-hidden h-[110vh]"
-         
-        >
-              <img
-          src="/model-2.png"
-          className="absolute object-cover z-0 w-full h-full"
-        />
-
-          <div className="p-12 absolute inset-0">
-            <ul className="space-y-2 text-lg font-medium text-zinc-600">
-              <li className="hover:text-black cursor-pointer">Kurtis</li>
-              <li className="hover:text-black cursor-pointer">Shawls</li>
-              <li className="hover:text-black cursor-pointer">Dupattas</li>
-              <li className="hover:text-black cursor-pointer">Mufflers</li>
-             
-            </ul>
-          </div>
-        </div>
-
-        {/* RIGHT BLOCK */}
-        <div
-          className="w-1/2 relative bg-cover bg-center overflow-hidden"
-        
-        >
-             <img
-          src="/model3.png"
-          className="absolute inset-0 w-full h-full object-center object-cover z-0"
-        />
-
-          <div className="p-12 flex flex-col items-end text-right h-full absolute inset-0">
-           
-
-            <div className="mt-auto pb-12">
-              <button className="bg-zinc-900 text-white px-10 py-3 uppercase tracking-wider font-semibold hover:bg-black transition">
-                Explore Now
-              </button>
-            </div>
-          </div>
-        </div>
-
-      </section>
-    </div>
-  );
+interface MediaAbout {
+  overview: string;
+  conclusion: string;
 }
+
+interface MediaContent {
+  src: string;
+  poster?: string;
+  background: string;
+  title: string;
+  date: string;
+  scrollToExpand: string;
+  about: MediaAbout;
+}
+
+interface MediaContentCollection {
+  [key: string]: MediaContent;
+}
+
+const sampleMediaContent: MediaContentCollection = {
+  video: {
+    src: '/model1video.mp4',
+    poster: '/model1.png',
+    background: '/kurtis.png',
+    title: 'Sardi',
+    date: 'Premium Kurti Style',
+    scrollToExpand: 'Experience the tradition',
+    about: {
+      overview:
+        'Experience Premium kurtis with rich embroidery, premium fabric, and modern silhouettes.We offer premium fabrics with a touch of tradition.',
+     
+    },
+  },
+  image: {
+    src: '/kurtis.png',
+    background: '/model-2.png',
+    title: 'Elegant Kurti Showcase',
+    date: 'Authentic Indian Style',
+    scrollToExpand: 'Scroll for More Details',
+    about: {
+      overview:
+        'Showcase beautiful kurti images with elegant animations and text blending. The component supports both video and image content from public assets.',
+      conclusion:
+        'Switch between media types and highlight your latest collection in an immersive way that drives interest and conversions.',
+    },
+  },
+};
+
+const MediaContent = ({ mediaType }: { mediaType: 'video' | 'image' }) => {
+  const currentMedia = sampleMediaContent[mediaType];
+
+  return (
+    <div className="relative w-full flex items-center justify-center min-h-[40vh]">
+      
+      <motion.h1
+        initial={{ opacity: 0, y: 80, scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="
+          w-full
+          text-center
+          text-5xl md:text-7xl lg:text-8xl
+          bg-gradient-to-b from-foreground/20 via-foreground/10 to-transparent 
+          bg-clip-text text-transparent
+          font-extrabold tracking-tighter
+          px-4
+        "
+      >
+        PREMIUM KURTI COLLECTION
+      </motion.h1>
+
+    </div>
+  )
+};
+
+const HeroSection = () => {
+  const [mediaType, setMediaType] = useState<'video' | 'image'>('video');
+  const currentMedia = sampleMediaContent[mediaType];
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const resetEvent = new Event('resetSection');
+    window.dispatchEvent(resetEvent);
+  }, [mediaType]);
+
+  return (
+   <>
+    <div className='min-h-screen bg-slate-50 w-full'>
+      <div className='fixed top-4 right-4 z-50 flex gap-2'>
+       
+      </div>
+
+      <ScrollExpandMedia
+        mediaType={mediaType}
+        mediaSrc={currentMedia.src}
+        posterSrc={mediaType === 'video' ? currentMedia.poster : undefined}
+        bgImageSrc={currentMedia.background}
+        title={currentMedia.title}
+        date={currentMedia.date}
+        scrollToExpand={currentMedia.scrollToExpand}
+        textBlend>
+        <MediaContent mediaType={mediaType} />
+      </ScrollExpandMedia>
+    </div>
+     <div className="w-full min-h-screen flex flex-col md:flex-row items-center justify-center gap-8 px-6 py-12 bg-slate-50">
+
+      {/* LEFT - CARD */}
+      <motion.div
+        initial={{ opacity: 0, x: -60 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.7 }}
+        className="relative overflow-hidden w-full md:w-1/2 max-w-xl rounded-3xl shadow-2xl border border-neutral-200 group cursor-pointer"
+      >
+        {/* Hover Gradient Overlay (right → left) */}
+        <motion.div
+          className="absolute inset-0 bg-[#f5f5dc] origin-right scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"
+        />
+
+        {/* Content */}
+        <div className="relative z-10 p-10">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight text-gray-600 group-hover:text-black transition-colors duration-300">
+            Premium Embroidered Kurtis
+          </h2>
+
+          <p className="text-lg leading-relaxed text-gray-700 group-hover:text-gray-800 transition-colors duration-300">
+            Premium embroidered kurtis with best pricing — no compromise in quality.
+          </p>
+          <Link href={"/products"}>
+          <button className="p-2 mt-5 bg-black text-white ">
+            Shop Now
+          </button></Link>
+        </div>
+      </motion.div>
+
+      {/* RIGHT - VIDEO */}
+      <motion.div
+        initial={{ opacity: 0, x: 60 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.7 }}
+        className="w-full md:w-1/2 max-w-xl rounded-3xl overflow-hidden shadow-2xl"
+      >
+        <video
+          src="/model2video.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+        />
+      </motion.div>
+
+    </div>
+  
+    <section>
+      <HoverSliderHero/>
+      </section>
+      <div>
+        <TestimonialsSectionDemo/>
+      </div>
+     <div className="w-screen h-screen relative">
+  <img
+    src="/kurtis2.png"
+    alt="Kurti Collection"
+    className="
+      w-full h-full 
+      object-cover 
+      
+    "
+  />
+</div>
+      <footer id="contact">
+        <FooterDemo/>
+      </footer>
+      </>
+      
+  );
+};
+
+export default HeroSection;
