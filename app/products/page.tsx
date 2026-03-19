@@ -1,5 +1,5 @@
 "use client"
-"force-dynamic"
+export const dynamic = "force-dynamic";
 
 import Navbar from "@/components/Navbar"
 import SkeletonLoading from "@/components/SkelitonLoading"

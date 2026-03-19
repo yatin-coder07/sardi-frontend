@@ -1,5 +1,5 @@
 "use client"
-"force-dynamic"
+export const dynamic = "force-dynamic";
 
 import AdminGuard from "@/components/AdminGuard"
 import { useEffect, useState } from "react"

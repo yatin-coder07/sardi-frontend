@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 
 
-import { useGoogleLogin } from "@react-oauth/google";
+
 import { ImageSlider } from "@/components/image-slider";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
