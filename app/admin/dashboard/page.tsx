@@ -9,6 +9,7 @@ import CreateProduct from "./CreateProducts"
 import SkeletonLoading from "@/components/SkelitonLoading"
 import { ApiFetch } from "@/lib/ApiFetch"
 import Navbar from "@/components/Navbar"
+import { Menu, X } from "lucide-react"
 
 export default function AdminDashboard() {
 
@@ -17,6 +18,8 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState([])
   const [loadingOrders, setLoadingOrders] = useState(false)
   const [deleteId, setDeleteId] = useState(null)
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -32,7 +35,6 @@ export default function AdminDashboard() {
     const res = await ApiFetch("/api/orders/admin/orders/")
     const data = await res.json()
     setOrders(data)
-    console.log(data)
     setLoadingOrders(false)
   }
 
@@ -43,22 +45,17 @@ export default function AdminDashboard() {
   const updateStatus = async (orderId, status) => {
     await ApiFetch(`/api/orders/admin/orders/${orderId}/`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ order_status: status }),
     })
-
     fetchOrders()
   }
 
   const deleteOrder = async () => {
     if (!deleteId) return
-
     await ApiFetch(`/api/orders/admin/orders/${deleteId}/`, {
       method: "DELETE",
     })
-
     setDeleteId(null)
     fetchOrders()
   }
@@ -77,202 +74,89 @@ export default function AdminDashboard() {
     }
   }
 
+  // ✅ MOBILE MENU LINKS (same functionality as sidebar)
+  const menuItems = [
+    { name: "Dashboard", value: "dashboard" },
+    { name: "Products", value: "products" },
+    { name: "Create Product", value: "create" },
+  ]
+
   const sections = {
     dashboard: (
       <>
         <Navbar />
 
         <div className="space-y-10 mt-6">
+          <h1 className="text-3xl md:text-5xl font-bold">
+            Admin Dashboard
+          </h1>
 
-          <h1 className="text-5xl font-bold">Admin Dashboard</h1>
+          {loadingOrders ? (
+            <SkeletonLoading />
+          ) : orders.length === 0 ? (
+            <p>No orders found</p>
+          ) : (
+            <div className="space-y-6 md:space-y-10">
+              {orders.map(order => (
+                <div key={order.id} className="bg-white p-4 md:p-12 rounded-2xl shadow">
 
-          <div>
-            <h2 className="text-3xl font-semibold mb-6">These are your Recent Orders</h2>
-
-            {loadingOrders ? (
-              <SkeletonLoading />
-            ) : orders.length === 0 ? (
-              <p className="text-gray-500">No orders found</p>
-            ) : (
-              <div className="space-y-10">
-
-                {orders.map(order => (
-                  <div
-                    key={order.id}
-                    className="bg-white p-12 rounded-3xl shadow-lg hover:shadow-2xl transition w-full"
-                  >
-
-                    {/* HEADER */}
-                    <div className="flex justify-between flex-wrap gap-10">
-
-                      {/* CUSTOMER */}
-                      <div className="space-y-3 text-lg max-w-[70%]">
-
-                        <p className="text-3xl font-bold">
-                          Order #{order.order_number}
-                        </p>
-
-                        <p>
-                          <span className="font-semibold">👤 Name:</span>{" "}
-                          {order.name}
-                        </p>
-
-                        <p>
-                          <span className="font-semibold">📞 Phone:</span>{" "}
-                          {order.phone_number}
-                        </p>
-
-                        <p>
-                          <span className="font-semibold">📍 Address:</span>{" "}
-                          {order.address}
-                        </p>
-
-                        {/* ✅ NEW FIELDS */}
-                        <p>
-                          <span className="font-semibold">🏙 City:</span>{" "}
-                          {order.city}
-                        </p>
-
-                        <p>
-                          <span className="font-semibold">🌍 State:</span>{" "}
-                          {order.state}
-                        </p>
-
-                        <p>
-                          <span className="font-semibold">📮 Pincode:</span>{" "}
-                          {order.pincode}
-                        </p>
-
-                        {order.secondary_address && (
-                          <p>
-                            <span className="font-semibold">🏠 Secondary:</span>{" "}
-                            {order.secondary_address}
-                          </p>
-                        )}
-
-                        {order.landmark && (
-                          <p>
-                            <span className="font-semibold">📌 Landmark:</span>{" "}
-                            {order.landmark}
-                          </p>
-                        )}
-
-                      </div>
-
-                      {/* PRICE + STATUS */}
-                      <div className="text-right space-y-4">
-                        <p className="text-4xl font-bold">
-                          ₹{order.total_amount}
-                        </p>
-
-                        <span
-                          className={`px-5 py-2 rounded-full text-lg font-semibold ${getStatusStyle(order.order_status)}`}
-                        >
-                          {order.order_status}
-                        </span>
-                      </div>
-
-                    </div>
-
-                    {/* ITEMS */}
-                    <div className="mt-10 border-t pt-6">
-                      <p className="font-semibold text-xl mb-4">
-                        🛒 Ordered Items
+                  <div className="flex flex-col md:flex-row justify-between gap-4">
+                    <div className="space-y-2 text-sm md:text-lg">
+                      <p className="text-xl md:text-3xl font-bold">
+                        Order #{order.order_number}
                       </p>
-
-                      <div className="space-y-4">
-                        {order.items.map(item => (
-                          <div
-                            key={item.id}
-                            className="flex items-center gap-4"
-                          >
-                            {item.product?.images?.[0]?.image && (
-                              <img
-                                src={item.product.images[0].image}
-                                className="w-16 h-16 rounded-lg object-cover"
-                              />
-                            )}
-
-                            <div className="flex-1">
-                              <p className="font-semibold text-lg">
-                                {item.product?.product_name}
-                              </p>
-                              <p className="text-gray-500">
-                                Quantity: {item.quantity}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <p>{order.name}</p>
+                      <p>{order.phone_number}</p>
+                      <p>{order.address}</p>
                     </div>
 
-                    {/* ACTIONS */}
-                    <div className="mt-8 flex flex-wrap gap-4 items-center">
-                      <p>Send Order Status To The Customer</p>
-
-                      <select
-                        className="border px-4 py-2 rounded-xl text-md"
-                        value={order.order_status}
-                        onChange={(e) =>
-                          updateStatus(order.id, e.target.value)
-                        }
-                      >
-                        <option value="PAID">PAID</option>
-                        <option value="OUT_FOR_DELIVERY">OUT FOR DELIVERY</option>
-                        <option value="DELIVERED">DELIVERED</option>
-                      </select>
-
-                      {(order.order_status === "CANCELLED" || order.order_status === "DELIVERED") && (
-                        <button
-                          onClick={() => setDeleteId(order.id)}
-                          className="bg-red-500 text-white px-5 py-2 rounded-xl hover:bg-red-600"
-                        >
-                          Delete Order
-                        </button>
-                      )}
-
+                    <div>
+                      <p className="text-xl md:text-3xl font-bold">
+                        ₹{order.total_amount}
+                      </p>
+                      <span className={`px-3 py-1 rounded ${getStatusStyle(order.order_status)}`}>
+                        {order.order_status}
+                      </span>
                     </div>
-
                   </div>
-                ))}
 
-              </div>
-            )}
-          </div>
+                  <div className="mt-4">
+                    {order.items.map(item => (
+                      <div key={item.id} className="flex gap-2 items-center">
+                        <img
+                          src={item.product?.images?.[0]?.image}
+                          className="w-12 h-12 rounded"
+                        />
+                        <p>{item.product?.product_name}</p>
+                      </div>
+                    ))}
+                  </div>
 
-          {/* MODAL */}
-          {deleteId && (
-            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-              <div className="bg-white p-8 rounded-2xl shadow-xl w-[400px] text-center space-y-4">
+                  <div className="mt-4 flex gap-2 flex-col md:flex-row">
+                    <select
+                      value={order.order_status}
+                      onChange={(e) => updateStatus(order.id, e.target.value)}
+                      className="border px-3 py-2 rounded"
+                    >
+                      <option value="PAID">PAID</option>
+                      <option value="OUT_FOR_DELIVERY">OUT FOR DELIVERY</option>
+                      <option value="DELIVERED">DELIVERED</option>
+                    </select>
 
-                <h2 className="text-xl font-bold">
-                  ⚠ Delete Order?
-                </h2>
+                    {(order.order_status === "DELIVERED" || order.order_status === "CANCELLED") && (
+                      <button
+                        onClick={() => setDeleteId(order.id)}
+                        className="bg-red-500 text-white px-3 py-2 rounded"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
 
-                <p className="text-gray-500">
-                  This action cannot be undone.
-                </p>
-
-                <div className="flex justify-center gap-4 mt-4">
-                  <button
-                    onClick={() => setDeleteId(null)}
-                    className="px-4 py-2 border rounded-lg"
-                  >
-                    Cancel
-                  </button>
-
-                  <button
-                    onClick={deleteOrder}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
                 </div>
-
-              </div>
+              ))}
             </div>
           )}
-
         </div>
       </>
     ),
@@ -285,11 +169,48 @@ export default function AdminDashboard() {
     <AdminGuard user={user}>
       <div className="flex min-h-screen bg-gray-100">
 
-        <div className="w-64 border-r bg-white">
+        {/* ✅ DESKTOP ONLY SIDEBAR */}
+        <div className="hidden md:block w-64 border-r bg-white">
           <Sidebar setSection={setSection} />
         </div>
 
-        <div className="flex-1 p-10">
+        {/* ✅ MOBILE TOP BAR */}
+        <div className="md:hidden fixed top-0 left-0 right-0 bg-white z-50 flex justify-between items-center p-4 shadow">
+          <Menu onClick={() => setMobileMenuOpen(true)} />
+          <p className="font-bold">Admin</p>
+        </div>
+
+        {/* ✅ MOBILE MENU (NO SIDEBAR USED) */}
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-50 bg-black/40">
+
+            <div className="bg-white w-64 h-full p-5 shadow-lg">
+
+              <button onClick={() => setMobileMenuOpen(false)}>
+                <X />
+              </button>
+
+              <div className="mt-6 space-y-4">
+                {menuItems.map(item => (
+                  <button
+                    key={item.value}
+                    onClick={() => {
+                      setSection(item.value)
+                      setMobileMenuOpen(false)
+                    }}
+                    className="block w-full text-left px-4 py-2 rounded hover:bg-gray-100"
+                  >
+                    {item.name}
+                  </button>
+                ))}
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* MAIN CONTENT */}
+        <div className="flex-1 p-4 md:p-10 mt-16 md:mt-0">
           {sections[section]}
         </div>
 

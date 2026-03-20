@@ -20,7 +20,7 @@ export default function FooterDemo() {
     },
     {
       icon: <Mail className="w-6 h-6" />,
-      href: "mailto:yatins113@gmail.com",
+      href: "https://mail.google.com/mail/?view=cm&fs=1&to=Palash.attri.123@gmail.com",
       label: "Email",
     },
   ];

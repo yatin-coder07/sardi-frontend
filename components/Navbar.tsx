@@ -192,11 +192,11 @@ export default function Navbar() {
 
                   <div className="flex flex-col gap-3">
 
-                    <button onClick={() => console.log("Cart")}>
+                    <button onClick={() => router.push("/cart")}>
                       Cart
                     </button>
 
-                    <button onClick={() => console.log("Orders")}>
+                    <button onClick={() => router.push("/orders")}>
                       Your Orders
                     </button>
 
