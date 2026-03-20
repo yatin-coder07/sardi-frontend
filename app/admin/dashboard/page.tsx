@@ -18,7 +18,6 @@ export default function AdminDashboard() {
   const [loadingOrders, setLoadingOrders] = useState(false)
   const [deleteId, setDeleteId] = useState(null)
 
-  // 🔥 Fetch User
   useEffect(() => {
     const fetchUser = async () => {
       const res = await ApiFetch("/api/auth/user/")
@@ -28,12 +27,12 @@ export default function AdminDashboard() {
     fetchUser()
   }, [])
 
-  // 🔥 Fetch Orders
   const fetchOrders = async () => {
     setLoadingOrders(true)
     const res = await ApiFetch("/api/orders/admin/orders/")
     const data = await res.json()
     setOrders(data)
+    console.log(data)
     setLoadingOrders(false)
   }
 
@@ -41,20 +40,18 @@ export default function AdminDashboard() {
     if (section === "dashboard") fetchOrders()
   }, [section])
 
-  // 🔥 Update Status
   const updateStatus = async (orderId, status) => {
     await ApiFetch(`/api/orders/admin/orders/${orderId}/`, {
       method: "PATCH",
       headers: {
-      "Content-Type": "application/json",   // ✅ REQUIRED
-    },
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ order_status: status }),
     })
 
     fetchOrders()
   }
 
-  // 🔥 Delete Order
   const deleteOrder = async () => {
     if (!deleteId) return
 
@@ -68,7 +65,6 @@ export default function AdminDashboard() {
 
   if (!user) return <SkeletonLoading />
 
-  // 🎨 Status Styling
   const getStatusStyle = (status) => {
     switch (status) {
       case "DELIVERED":
@@ -84,7 +80,6 @@ export default function AdminDashboard() {
   const sections = {
     dashboard: (
       <>
-        {/* 🔥 NAVBAR */}
         <Navbar />
 
         <div className="space-y-10 mt-6">
@@ -92,26 +87,26 @@ export default function AdminDashboard() {
           <h1 className="text-5xl font-bold">Admin Dashboard</h1>
 
           <div>
-            <h2 className="text-3xl font-semibold mb-6">Recent Orders</h2>
+            <h2 className="text-3xl font-semibold mb-6">These are your Recent Orders</h2>
 
             {loadingOrders ? (
               <SkeletonLoading />
             ) : orders.length === 0 ? (
               <p className="text-gray-500">No orders found</p>
             ) : (
-              <div className="space-y-8">
+              <div className="space-y-10">
 
                 {orders.map(order => (
                   <div
                     key={order.id}
-                    className="bg-white p-10 rounded-3xl shadow-lg hover:shadow-2xl transition"
+                    className="bg-white p-12 rounded-3xl shadow-lg hover:shadow-2xl transition w-full"
                   >
 
                     {/* HEADER */}
-                    <div className="flex justify-between flex-wrap gap-6">
+                    <div className="flex justify-between flex-wrap gap-10">
 
                       {/* CUSTOMER */}
-                      <div className="space-y-3 text-lg">
+                      <div className="space-y-3 text-lg max-w-[70%]">
 
                         <p className="text-3xl font-bold">
                           Order #{order.order_number}
@@ -130,6 +125,22 @@ export default function AdminDashboard() {
                         <p>
                           <span className="font-semibold">📍 Address:</span>{" "}
                           {order.address}
+                        </p>
+
+                        {/* ✅ NEW FIELDS */}
+                        <p>
+                          <span className="font-semibold">🏙 City:</span>{" "}
+                          {order.city}
+                        </p>
+
+                        <p>
+                          <span className="font-semibold">🌍 State:</span>{" "}
+                          {order.state}
+                        </p>
+
+                        <p>
+                          <span className="font-semibold">📮 Pincode:</span>{" "}
+                          {order.pincode}
                         </p>
 
                         {order.secondary_address && (
@@ -164,7 +175,7 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* ITEMS */}
-                    <div className="mt-8 border-t pt-6">
+                    <div className="mt-10 border-t pt-6">
                       <p className="font-semibold text-xl mb-4">
                         🛒 Ordered Items
                       </p>
@@ -175,13 +186,12 @@ export default function AdminDashboard() {
                             key={item.id}
                             className="flex items-center gap-4"
                           >
-                            {/* 🔥 PRODUCT IMAGE */}
-                          {item.product?.images?.[0]?.image && (
-  <img
-    src={item.product.images[0].image}
-    className="w-16 h-16 rounded-lg object-cover"
-  />
-)}
+                            {item.product?.images?.[0]?.image && (
+                              <img
+                                src={item.product.images[0].image}
+                                className="w-16 h-16 rounded-lg object-cover"
+                              />
+                            )}
 
                             <div className="flex-1">
                               <p className="font-semibold text-lg">
@@ -197,8 +207,9 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* ACTIONS */}
-                    <div className="mt-6 flex flex-wrap gap-4 items-center">
-                        <p>Send Order Status To The Customer</p>
+                    <div className="mt-8 flex flex-wrap gap-4 items-center">
+                      <p>Send Order Status To The Customer</p>
+
                       <select
                         className="border px-4 py-2 rounded-xl text-md"
                         value={order.order_status}
@@ -207,13 +218,11 @@ export default function AdminDashboard() {
                         }
                       >
                         <option value="PAID">PAID</option>
-                       
                         <option value="OUT_FOR_DELIVERY">OUT FOR DELIVERY</option>
                         <option value="DELIVERED">DELIVERED</option>
-
                       </select>
 
-                      {order.order_status === "CANCELLED" && (
+                      {(order.order_status === "CANCELLED" || order.order_status === "DELIVERED") && (
                         <button
                           onClick={() => setDeleteId(order.id)}
                           className="bg-red-500 text-white px-5 py-2 rounded-xl hover:bg-red-600"
@@ -231,7 +240,7 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          {/* 🔥 MODAL */}
+          {/* MODAL */}
           {deleteId && (
             <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
               <div className="bg-white p-8 rounded-2xl shadow-xl w-[400px] text-center space-y-4">

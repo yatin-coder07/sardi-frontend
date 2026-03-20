@@ -84,11 +84,11 @@ export default function Navbar() {
 
           <span className="text-gray-300">|</span>
 
-          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
 
           <span className="text-gray-300">|</span>
 
-         <a href="#contact">Contact</a>
+         <Link href={"/cart"}><span className={`flex items-center text-sm gap-2 ${!user ? "cursor-not-allowed":""}`}><ShoppingCart/>Cart</span></Link>
 
         </div>
 

@@ -61,7 +61,7 @@ const MediaContent = ({ mediaType }: { mediaType: 'video' | 'image' }) => {
   const currentMedia = sampleMediaContent[mediaType];
 
   return (
-    <div className="relative w-full flex items-center justify-center min-h-[40vh]">
+    <div className="relative w-full flex flex-col items-center justify-center min-h-[40vh] gap-30">
       
       <motion.h1
         initial={{ opacity: 0, y: 80, scale: 0.9 }}
@@ -79,6 +79,7 @@ const MediaContent = ({ mediaType }: { mediaType: 'video' | 'image' }) => {
       >
         PREMIUM KURTI COLLECTION
       </motion.h1>
+      <img src={"/sardi.jpeg"} alt="" className="h-60 w-90" />
 
     </div>
   )

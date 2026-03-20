@@ -10,12 +10,12 @@ export default function FooterDemo() {
   const socialLinks = [
     {
       icon: <Phone className="w-6 h-6" />,
-      href: "tel:+919876543210",
+      href: "tel:+918557057500",
       label: "Call",
     },
     {
       icon: <MessageCircle className="w-6 h-6" />,
-      href: "https://wa.me/919876543210",
+      href: "https://wa.me/8557057500",
       label: "WhatsApp",
     },
     {

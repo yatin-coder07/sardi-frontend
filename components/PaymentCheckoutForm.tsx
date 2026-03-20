@@ -18,34 +18,22 @@ export default function PaymentCheckoutForm({
     address: "",
     secondary_address: "",
     landmark: "",
+    city: "",
+    state: "",
+    pincode: "",
   });
 
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  // ✅ Phone validation
-  const validate = () => {
-    let newErrors = {};
-
-    if (!/^\d{10}$/.test(form.phone_number)) {
-      newErrors.phone_number = "Enter a valid 10-digit phone number";
-    }
-
-    if (!form.name) newErrors.name = "Name is required";
-    if (!form.address && !form.secondary_address) {
-      newErrors.address = "Provide at least one address";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handlePayment = async () => {
-    if (!validate()) return;
+    console.log("FORM DATA:", form); // 🔥 DEBUG
 
     try {
       setLoading(true);
@@ -61,16 +49,7 @@ export default function PaymentCheckoutForm({
         }),
       });
 
-      const text = await res.text();
-
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (err) {
-        console.error("Server returned HTML:", text);
-        alert("Server error. Check backend.");
-        return;
-      }
+      const data = await res.json();
 
       if (!res.ok) {
         alert(data.error || "Something went wrong");
@@ -110,7 +89,7 @@ export default function PaymentCheckoutForm({
         },
 
         theme: {
-          color: "#2563eb", // 🔵 blue theme
+          color: "#2563eb",
         },
       };
 
@@ -120,6 +99,7 @@ export default function PaymentCheckoutForm({
       rzp.on("payment.failed", function () {
         alert("Payment failed ❌");
       });
+
     } catch (err) {
       console.error(err);
       alert("Something went wrong");
@@ -133,125 +113,92 @@ export default function PaymentCheckoutForm({
       {isOpen && (
         <motion.div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
         >
-          <motion.div
-            className="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl"
-            initial={{ y: 80, opacity: 0, scale: 0.95 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 80, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* Header */}
+          <motion.div className="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-semibold">
                 Delivery Details
               </h2>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-lg hover:scale-110 transition"
-              >
-                ✕
-              </button>
+              <button onClick={() => setIsOpen(false)}>✕</button>
             </div>
 
-            {/* Form */}
             <div className="space-y-4">
-              {/* Name */}
-              <div>
-                <label className="text-base font-medium">
-                  Full Name
-                </label>
-                <input
-                  name="name"
-                  placeholder="Enter your full name"
-                  className="w-full border p-3 rounded-xl mt-1"
-                  onChange={handleChange}
-                />
-                {errors.name && (
-                  <p className="text-red-500 text-sm">
-                    {errors.name}
-                  </p>
-                )}
-              </div>
 
-              {/* Phone */}
-              <div>
-                <label className="text-base font-medium">
-                  Phone Number (10 digits)
-                </label>
-                <input
-                  name="phone_number"
-                  placeholder="e.g. 9876543210"
-                  className="w-full border p-3 rounded-xl mt-1"
-                  onChange={handleChange}
-                />
-                {errors.phone_number && (
-                  <p className="text-red-500 text-sm">
-                    {errors.phone_number}
-                  </p>
-                )}
-              </div>
+              <input
+                name="name"
+                value={form.name}
+                placeholder="Full Name"
+                className="w-full border p-3 rounded-xl"
+                onChange={handleChange}
+              />
 
-              {/* Address */}
-              <div>
-                <label className="text-base font-medium">
-                  Primary Address
-                </label>
-                <textarea
-                  name="address"
-                  placeholder="House no, street, city, pincode"
-                  className="w-full border p-3 rounded-xl mt-1"
-                  onChange={handleChange}
-                />
-              </div>
+              <input
+                name="phone_number"
+                value={form.phone_number}
+                placeholder="Phone Number"
+                className="w-full border p-3 rounded-xl"
+                onChange={handleChange}
+              />
 
-              {/* Secondary Address */}
-              <div>
-                <label className="text-base font-medium">
-                  Secondary Address (use if primary is unavailable)
-                </label>
-                <input
-                  name="secondary_address"
-                  placeholder="Alternative delivery address"
-                  className="w-full border p-3 rounded-xl mt-1"
-                  onChange={handleChange}
-                />
-                {errors.address && (
-                  <p className="text-red-500 text-sm">
-                    {errors.address}
-                  </p>
-                )}
-              </div>
+              <textarea
+                name="address"
+                value={form.address}
+                placeholder="Primary Address"
+                className="w-full border p-3 rounded-xl"
+                onChange={handleChange}
+              />
 
-              {/* Landmark */}
-              <div>
-                <label className="text-base font-medium">
-                  Nearby Landmark (optional)
-                </label>
-                <input
-                  name="landmark"
-                  placeholder="e.g. Near temple / mall"
-                  className="w-full border p-3 rounded-xl mt-1"
-                  onChange={handleChange}
-                />
-              </div>
+              <input
+                name="secondary_address"
+                value={form.secondary_address}
+                placeholder="Secondary Address"
+                className="w-full border p-3 rounded-xl"
+                onChange={handleChange}
+              />
+
+              <input
+                name="landmark"
+                value={form.landmark}
+                placeholder="Landmark"
+                className="w-full border p-3 rounded-xl"
+                onChange={handleChange}
+              />
+
+              <input
+                name="city"
+                value={form.city}
+                placeholder="City"
+                className="w-full border p-3 rounded-xl"
+                onChange={handleChange}
+              />
+
+              <input
+                name="state"
+                value={form.state}
+                placeholder="State"
+                className="w-full border p-3 rounded-xl"
+                onChange={handleChange}
+              />
+
+              <input
+                name="pincode"
+                value={form.pincode}
+                placeholder="Pincode"
+                className="w-full border p-3 rounded-xl"
+                onChange={handleChange}
+              />
+
             </div>
 
-            {/* CTA Button */}
             <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
               onClick={handlePayment}
               disabled={loading}
-              className="w-full mt-6 bg-blue-600 text-white py-3 rounded-xl text-lg font-semibold shadow-lg hover:bg-blue-700 transition"
+              className="w-full mt-6 bg-blue-600 text-white py-3 rounded-xl"
             >
-              {loading
-                ? "Processing..."
-                : `Proceed to Pay ₹${totalAmount}`}
+              {loading ? "Processing..." : `Proceed to Pay ₹${totalAmount}`}
             </motion.button>
+
           </motion.div>
         </motion.div>
       )}

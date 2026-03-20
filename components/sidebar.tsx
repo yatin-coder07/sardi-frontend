@@ -229,7 +229,7 @@ const Sidebar = ({ setSection }) => {
                 className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100"
               >
                 <Bell className="h-5 w-5" />
-                Orders
+                Dashboard
               </button>
             </li>
               <li className="mb-2">

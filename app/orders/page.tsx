@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { ApiFetch } from "@/lib/ApiFetch";
 import SkeletonLoading from "@/components/SkelitonLoading";
 import Navbar from "@/components/Navbar";
+import EmptyState from "@/components/EmptyState"; // ✅ added
 
 import {
   AlertDialog,
@@ -113,16 +114,18 @@ export default function OrdersPage() {
         {loading ? (
           <SkeletonLoading />
         ) : orders.length === 0 ? (
-          <p className="text-center text-gray-500">
-            No orders yet
-          </p>
+          // ✅ replaced text with EmptyState
+          <EmptyState page="Orders" />
         ) : (
           <div className="flex flex-col gap-6 w-full">
             {orders.map((order, index) => {
               const step = getStep(order.order_status);
 
+              // ✅ UPDATED CONDITION (added DELIVERED)
               const isDeletable =
-                !order.is_paid || order.order_status === "CANCELLED";
+                !order.is_paid ||
+                order.order_status === "CANCELLED" ||
+                order.order_status === "DELIVERED";
 
               return (
                 <motion.div

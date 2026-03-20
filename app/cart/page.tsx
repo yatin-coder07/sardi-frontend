@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import Navbar from "@/components/Navbar";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ApiFetch } from "@/lib/ApiFetch"; // ✅ import
+import { ApiFetch } from "@/lib/ApiFetch";
 import SkeletonLoading from "@/components/SkelitonLoading";
 import PaymentCheckoutForm from "@/components/PaymentCheckoutForm";
 
@@ -16,7 +16,6 @@ export default function CartPage() {
 
   const fetchCart = async () => {
     const res = await ApiFetch(`/api/cart/`);
-
     const data = await res.json();
     setCart(data);
     setLoading(false);
@@ -46,8 +45,6 @@ export default function CartPage() {
     fetchCart();
   };
 
-  
-
   if (loading) return <SkeletonLoading/>
 
   const subtotal = cart.items.reduce(
@@ -56,7 +53,9 @@ export default function CartPage() {
   );
 
   const shipping = 50;
-  const total = subtotal + shipping;
+
+  // ✅ FINAL TOTAL = SUBTOTAL ONLY (shipping discounted)
+  const total = subtotal;
 
   return (
     <>
@@ -91,7 +90,6 @@ export default function CartPage() {
                   className="flex items-center justify-between bg-white p-4 rounded-md border"
                 >
 
-                  {/* Product Info */}
                   <div className="flex items-center gap-4">
 
                     <img
@@ -110,7 +108,6 @@ export default function CartPage() {
 
                   </div>
 
-                  {/* Quantity */}
                   <div className="flex items-center border rounded">
 
                     <button
@@ -137,12 +134,10 @@ export default function CartPage() {
 
                   </div>
 
-                  {/* Subtotal */}
                   <p className="font-medium">
                     Rs. {item.product.price * item.quantity}
                   </p>
 
-                  {/* Delete */}
                   <button
                     onClick={() => removeItem(item.id)}
                     className="text-red-500 text-sm"
@@ -174,11 +169,20 @@ export default function CartPage() {
                 <span>Rs. {subtotal}</span>
               </div>
 
-              <div className="flex justify-between">
+              {/* ✅ Shipping shown as cut (offer applied) */}
+              <div className="flex justify-between items-center">
                 <span>Shipping</span>
-                <span>Rs. {shipping}</span>
+                <div className="flex gap-2 items-center">
+                  <span className="line-through text-gray-400">
+                    Rs. {shipping}
+                  </span>
+                  <span className="text-green-600 font-medium">
+                    Free
+                  </span>
+                </div>
               </div>
 
+              {/* ✅ Final total = subtotal */}
               <div className="flex justify-between font-semibold text-base mt-4">
                 <span>Total</span>
                 <span>Rs. {total}</span>
@@ -192,15 +196,16 @@ export default function CartPage() {
             >
               Order now
             </button>
+
             <PaymentCheckoutForm
-        isOpen={open}
-        setIsOpen={setOpen}
-         items={cart.items.map(item => ({
-    product_id: item.product.id,
-    quantity: item.quantity,
-  }))}
-        totalAmount={total}
-      />
+              isOpen={open}
+              setIsOpen={setOpen}
+              items={cart.items.map(item => ({
+                product_id: item.product.id,
+                quantity: item.quantity,
+              }))}
+              totalAmount={total}
+            />
 
           </motion.div>
 
