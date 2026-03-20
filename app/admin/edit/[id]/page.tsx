@@ -105,7 +105,7 @@ export default function EditProduct() {
     })
 
     const res = await ApiFetch(`/api/products/update/${id}/`,{
-       method: "POST",
+       method: "PUT",
   body: formData
     })
     
