@@ -1,20 +1,17 @@
-"use client"
+"use client";
+
 import { motion } from "framer-motion";
-
-
-
 import { ImageSlider } from "@/components/image-slider";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function ImageSliderLoginDemo() {
-  const images = [
-   "model1.png",
-    "model-2.png",
-    "model3.png",
-  ];
+  const images = ["model1.png", "model-2.png", "model3.png"];
   const router = useRouter();
+
+  const [loading, setLoading] = useState(false);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -40,73 +37,123 @@ export default function ImageSliderLoginDemo() {
     },
   };
 
-  
+  // 🔥 SAFE LOGIN HANDLER (PRODUCTION READY)
+  const handleSuccess = async (credentialResponse) => {
+    if (loading) return;
 
+    setLoading(true);
 
-    const handleSuccess = async (credentialResponse) => {
     try {
-
       const googleToken = credentialResponse.credential;
+
+      if (!googleToken) throw new Error("No Google token");
 
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/google/`,
-        {
-          token: googleToken
-        }
+        { token: googleToken },
+        { timeout: 10000 } // ⏱ prevents hanging
       );
 
       const { access_token, refresh_token } = res.data;
 
+      // ✅ clean storage before saving
+      localStorage.clear();
+      sessionStorage.clear();
+
       localStorage.setItem("access_token", access_token);
       localStorage.setItem("refresh_token", refresh_token);
 
-      console.log("Login successful");
-      router.push("/")
-
+      router.push("/");
     } catch (err) {
-      console.error("Login failed", err);
+      console.error("Login failed:", err);
+
+      // 🔥 AUTO RECOVERY SYSTEM
+      localStorage.clear();
+      sessionStorage.clear();
+
+      alert("Login failed. Retrying...");
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } finally {
+      setLoading(false);
     }
   };
 
+  // 🔥 HANDLE GOOGLE FAILURE
+  const handleError = () => {
+    console.log("Google Login Failed");
+
+    localStorage.clear();
+    sessionStorage.clear();
+
+    alert("Google login failed. Retrying...");
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  };
 
   return (
     <div className="w-full h-screen min-h-[700px] flex items-center justify-center bg-background bg-gray-200 p-4">
-      <motion.div 
+      <motion.div
         className="w-full max-w-5xl h-[700px] grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden shadow-2xl border"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
       >
-        {/* Left side: Image Slider */}
+        {/* Left side */}
         <div className="hidden lg:block">
           <ImageSlider images={images} interval={4000} />
         </div>
 
-        {/* Right side: Login Form */}
+        {/* Right side */}
         <div className="w-full h-full bg-card text-card-foreground flex flex-col items-center justify-center p-8 md:p-12 text-center">
-          <motion.div 
+          <motion.div
             className="w-full max-w-sm"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            <motion.h1 variants={itemVariants} className="text-3xl font-bold tracking-tight mb-2">
+            <motion.h1
+              variants={itemVariants}
+              className="text-3xl font-bold tracking-tight mb-2"
+            >
               Welcome To Sardi
             </motion.h1>
-            <motion.p variants={itemVariants} className="text-muted-foreground mb-8">
-              Your one-stop shop for traditional and Trending fashion <br /> Please log in to continue.
+
+            <motion.p
+              variants={itemVariants}
+              className="text-muted-foreground mb-8"
+            >
+              Your one-stop shop for traditional and Trending fashion <br />
+              Please log in to continue.
             </motion.p>
 
-            <motion.div variants={itemVariants} className="flex items-center justify-center">
-              <GoogleLogin size="large"
-      onSuccess={handleSuccess}
-      
-      onError={() => console.log("Login Failed")}
-    />
+            <motion.div
+              variants={itemVariants}
+              className="flex items-center justify-center"
+            >
+              <GoogleLogin
+                size="large"
+                onSuccess={handleSuccess}
+                onError={handleError}
+                useOneTap={false} // 🔥 important
+              />
             </motion.div>
 
-
-            
+            {/* 🔥 FAILSAFE BUTTON (no design break) */}
+            <button
+              onClick={() => {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.reload();
+              }}
+              className="mt-4 text-xs text-gray-500 underline"
+            >
+              Having trouble? Retry
+            </button>
           </motion.div>
         </div>
       </motion.div>

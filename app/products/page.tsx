@@ -15,16 +15,42 @@ export default function ProductsPage() {
   const [products, setProducts] = useState([])
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
+
   const router = useRouter()
 
-  const fetchProducts = async (query = "") => {
+  // 🔥 PRODUCTION SAFE FETCH
+  const fetchProducts = async (query = "", retry = true) => {
+    try {
+      setLoading(true)
 
-    const res = await ApiFetch(`/api/products/?search=${query}`)
-    const data = await res.json()
+      const res = await ApiFetch(`/api/products/?search=${query}`)
 
-    setProducts(data)
-    setLoading(false)
+      if (!res || !res.ok) {
+        throw new Error("API failed")
+      }
 
+      const data = await res.json()
+
+      setProducts(data)
+
+    } catch (err) {
+      console.error("❌ Fetch products error:", err)
+
+      // 🔥 AUTO RETRY ONCE
+      if (retry) {
+        console.log("🔁 Retrying products fetch...")
+        setTimeout(() => {
+          fetchProducts(query, false)
+        }, 1000)
+        return
+      }
+
+      // 🔥 FAIL SAFE (never blank forever)
+      setProducts([])
+
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -60,8 +86,6 @@ export default function ProductsPage() {
       className="flex items-center bg-white border rounded-xl shadow-sm overflow-hidden"
     >
 
-      {/* Input */}
-
       <input
         type="text"
         placeholder="Search products..."
@@ -70,13 +94,11 @@ export default function ProductsPage() {
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      {/* Search Button */}
-
       <motion.button
         whileTap={{ scale: 0.95 }}
         whileHover={{ scale: 1.03 }}
         type="submit"
-        className="flex items-center gap-2 text-gray-500  px-5 py-3 text-sm md:text-base"
+        className="flex items-center gap-2 text-gray-500 px-5 py-3 text-sm md:text-base"
       >
         <Search size={18}/>
         Search
@@ -91,50 +113,61 @@ export default function ProductsPage() {
 
   <section>
 
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
->
-
-      {products.map((product) => (
-
-      <Link href={`products/${product.id}`}>
-        <div
-          key={product.id}
-          className="bg-white border rounded-md overflow-hidden hover:shadow-lg transition"
-             
+    {/* 🔥 EMPTY STATE (ONLY IF FAILED) */}
+    {!loading && products.length === 0 ? (
+      <div className="text-center py-16">
+        <p className="text-gray-500 mb-4">
+          Unable to load products
+        </p>
+        <button
+          onClick={() => fetchProducts()}
+          className="px-4 py-2 bg-black text-white rounded"
         >
+          Retry
+        </button>
+      </div>
+    ) : (
 
-          {/* Product Image */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-          <div className="aspect-square bg-gray-100">
+        {products.map((product) => (
 
-            <img
-              src={product.images?.[0]?.image}
-              alt={product.product_name}
-              className="w-full h-full object-cover"
-            />
+        <Link href={`products/${product.id}`} key={product.id}>
+          <div
+            className="bg-white border rounded-md overflow-hidden hover:shadow-lg transition"
+          >
+
+            {/* Product Image */}
+            <div className="aspect-square bg-gray-100">
+              <img
+                src={product.images?.[0]?.image}
+                alt={product.product_name}
+                className="w-full h-full object-cover"
+                loading="lazy" // 🔥 PERFORMANCE BOOST
+              />
+            </div>
+
+            {/* Bottom Info */}
+            <div className="flex justify-between items-center px-4 py-3 border-t">
+
+              <p className="text-sm font-medium">
+                {product.product_name}
+              </p>
+
+              <p className="text-sm font-semibold">
+                Rs. {product.price}
+              </p>
+
+            </div>
 
           </div>
+        </Link>
 
+        ))}
 
-          {/* Bottom Info */}
+      </div>
 
-          <div className="flex justify-between items-center px-4 py-3 border-t">
-
-            <p className="text-sm font-medium">
-              {product.product_name}
-            </p>
-
-            <p className="text-sm font-semibold">
-              Rs. {product.price}
-            </p>
-
-          </div>
-
-        </div></Link>
-
-      ))}
-
-    </div>
+    )}
 
   </section>
 
