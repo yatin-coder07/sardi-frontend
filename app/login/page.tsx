@@ -49,7 +49,7 @@ export default function ImageSliderLoginDemo() {
       const googleToken = credentialResponse.credential;
 
       const res = await axios.post(
-        "http://localhost:8000/api/auth/google/",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/google/`,
         {
           token: googleToken
         }
