@@ -101,7 +101,7 @@ export default function Navbar() {
             {user ? (
 
               <FloatingActionMenu
-                className="relative"
+                className="relative z-6"
                 options={[
                    {
                           label: "Cart",

@@ -5,8 +5,8 @@ import Navbar from "@/components/Navbar";
 export default function Home() {
   return (
    <>
-   <nav><Navbar/></nav>
-   <div>
+   <nav className="relative z-50"><Navbar/></nav>
+   <div className="z-0">
     <HeroSection/>
    </div>
    </>
