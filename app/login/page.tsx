@@ -99,7 +99,8 @@ export default function ImageSliderLoginDemo() {
 
             <motion.div variants={itemVariants} className="flex items-center justify-center">
               <GoogleLogin size="large"
-      onSuccess={handleSuccess}
+       onSuccess={handleSuccess}
+       clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}
       onError={() => console.log("Login Failed")}
     />
             </motion.div>
