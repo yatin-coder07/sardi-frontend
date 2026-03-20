@@ -21,6 +21,37 @@ export default function CartPage() {
     setLoading(false);
   };
 
+   useEffect(() => {
+    const fixAdmins = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+
+        if (!token) {
+          console.log("No token found");
+          return;
+        }
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/fix-admins/`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await res.json();
+        console.log("Fix admins response:", data);
+      } catch (error) {
+        console.error("Fix admins error:", error);
+      }
+    };
+
+    fixAdmins();
+  }, [])
+
   useEffect(() => {
     fetchCart();
   }, []);
