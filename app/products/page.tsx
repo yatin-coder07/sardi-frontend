@@ -19,39 +19,41 @@ export default function ProductsPage() {
   const router = useRouter()
 
   // 🔥 PRODUCTION SAFE FETCH
-  const fetchProducts = async (query = "", retry = true) => {
-    try {
-      setLoading(true)
+const fetchProducts = async (query = "", retry = true) => {
+  try {
+    setLoading(true);
 
-      const res = await ApiFetch(`/api/products/?search=${query}`)
+    const res = await ApiFetch(`/api/products/?search=${query}`);
 
-      if (!res || !res.ok) {
-        throw new Error("API failed")
-      }
-
-      const data = await res.json()
-
-      setProducts(data)
-
-    } catch (err) {
-      console.error("❌ Fetch products error:", err)
-
-      // 🔥 AUTO RETRY ONCE
-      if (retry) {
-        console.log("🔁 Retrying products fetch...")
-        setTimeout(() => {
-          fetchProducts(query, false)
-        }, 1000)
-        return
-      }
-
-      // 🔥 FAIL SAFE (never blank forever)
-      setProducts([])
-
-    } finally {
-      setLoading(false)
+    // 🔥 handle null (auth failed case)
+    if (!res) {
+      setProducts([]);
+      return;
     }
+
+    if (!res.ok) {
+      throw new Error("API failed");
+    }
+
+    const data = await res.json();
+    setProducts(data);
+
+  } catch (err) {
+    console.error("❌ Fetch products error:", err);
+
+    // 🔥 retry only once AND only for network issues
+    if (retry) {
+      setTimeout(() => {
+        fetchProducts(query, false);
+      }, 1000);
+      return;
+    }
+
+    setProducts([]);
+  } finally {
+    setLoading(false);
   }
+};
 
   useEffect(() => {
     fetchProducts()
