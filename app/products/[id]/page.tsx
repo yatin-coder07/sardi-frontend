@@ -19,14 +19,12 @@ export default function ProductDetailPage() {
 
   const [quantity, setQuantity] = useState(1);
 
-  // ✅ NEW: user state
   const [user, setUser] = useState(null);
 
   useEffect(() => {
 
     const fetchData = async () => {
       try {
-        // ✅ Fetch product
         const res = await ApiFetch(`/api/products/detail/${id}/`);
         const data = await res.json();
         setProduct(data);
@@ -35,7 +33,6 @@ export default function ProductDetailPage() {
           setSelectedImage(data.images[0].image);
         }
 
-        // ✅ Fetch user (will fail if not logged in)
         try {
           const userRes = await ApiFetch(`/api/auth/user/`);
           if (userRes.ok) {
@@ -61,14 +58,11 @@ export default function ProductDetailPage() {
 
   const addToCart = async () => {
 
-    // ❌ NOT LOGGED IN
     if (!user) {
       alert("Please login to add items to cart");
-     
       return;
     }
 
-    // ❌ OUT OF STOCK
     if (product.product_availability === "Out Of Stock") {
       alert("This product is out of stock");
       return;
@@ -141,21 +135,41 @@ export default function ProductDetailPage() {
               {product.product_name}
             </h1>
 
-            <p className="text-2xl text-orange-500 font-semibold mb-6">
+            {/* PRICE */}
+            <p className="text-2xl text-orange-500 font-semibold mb-2">
               ₹ {product.price}
             </p>
+
+            {/* ✅ MATERIAL + SLEEVES */}
+            <div className="mb-6 space-y-1">
+              {product.material_type && (
+                <p className="text-sm text-gray-600">
+                  <span className="font-semibold">Material:</span> {product.material_type}
+                </p>
+              )}
+              {product.sleeves_type && (
+                <p className="text-sm text-gray-600">
+                  <span className="font-semibold">Sleeves:</span> {product.sleeves_type}
+                </p>
+              )}
+            </div>
 
             {/* SIZE */}
             <div className="mb-6">
               <p className="text-sm font-semibold text-gray-500 mb-2">FREE SIZE</p>
             </div>
 
-            {/* DESCRIPTION */}
+            {/* ✅ DESCRIPTION → BULLETS */}
             <div className="mb-6">
               <p className="text-sm text-gray-500 mb-2">DETAILS</p>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                {product.product_description}
-              </p>
+
+              <ul className="text-sm text-gray-700 space-y-1 list-disc pl-4">
+                {product.product_description
+                  ?.split("\n")
+                  .map((point, index) => (
+                    <li key={index}>{point}</li>
+                  ))}
+              </ul>
             </div>
 
             {/* AVAILABILITY */}
@@ -168,12 +182,6 @@ export default function ProductDetailPage() {
               }`}>
                 {product.product_availability}
               </p>
-            </div>
-
-            {/* ✅ QUANTITY */}
-            <div className="mb-6">
-             
-             
             </div>
 
             {/* ADD TO CART */}

@@ -17,6 +17,10 @@ export default function EditProduct() {
   const [description,setDescription] = useState("")
   const [availability,setAvailability] = useState("In Stock")
 
+  // ✅ NEW STATES
+  const [materialType,setMaterialType] = useState("")
+  const [sleevesType,setSleevesType] = useState("")
+
   const [existingImages,setExistingImages] = useState([])
   const [newImages,setNewImages] = useState([])
 
@@ -41,6 +45,10 @@ export default function EditProduct() {
       setPrice(data.price)
       setDescription(data.product_description)
       setAvailability(data.product_availability)
+
+      // ✅ SET NEW FIELDS
+      setMaterialType(data.material_type || "")
+      setSleevesType(data.sleeves_type || "")
 
       setExistingImages(data.images || [])
 
@@ -87,14 +95,16 @@ export default function EditProduct() {
 
     e.preventDefault()
 
-    
-
     const formData = new FormData()
 
     formData.append("product_name",productName)
     formData.append("price",price)
     formData.append("product_description",description)
     formData.append("product_availability",availability)
+
+    // ✅ SEND NEW FIELDS
+    formData.append("material_type", materialType)
+    formData.append("sleeves_type", sleevesType)
 
     existingImages.forEach(img=>{
       formData.append("existing_images", img.id)
@@ -106,7 +116,7 @@ export default function EditProduct() {
 
     const res = await ApiFetch(`/api/products/update/${id}/`,{
        method: "PUT",
-  body: formData
+       body: formData
     })
     
 
@@ -122,7 +132,6 @@ export default function EditProduct() {
   const DeleteProduct=async()=>{
     const res = await ApiFetch(`/api/products/delete/${id}/`,{
        method: "DELETE",
- 
     })
     
 
@@ -135,22 +144,22 @@ export default function EditProduct() {
     }
   }
 
-  if(loading) return <p>Loading...</p>
+  if(loading) return <p className="text-center mt-10">Loading...</p>
 
   return (
 
 <motion.div
   initial={{ opacity: 0, y: 30 }}
   animate={{ opacity: 1, y: 0 }}
-  className="max-w-5xl mx-auto mt-10 px-4 "
+  className="max-w-5xl mx-auto mt-6 md:mt-10 px-4"
 >
-  <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 border border-gray-200 shadow-2xl rounded-3xl p-8 sm:p-10">
+  <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 border border-gray-200 shadow-2xl rounded-3xl p-5 sm:p-8 md:p-10">
 
-    <h1 className="text-3xl sm:text-4xl font-bold mb-8 text-gray-800 text-center">
+    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 md:mb-8 text-gray-800 text-center">
        Edit Your Product Here
     </h1>
 
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
 
       {/* PRODUCT NAME */}
       <div>
@@ -160,7 +169,7 @@ export default function EditProduct() {
         <input
           value={productName}
           onChange={(e)=>setProductName(e.target.value)}
-          className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-black outline-none"
+          className="w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-black outline-none"
         />
       </div>
 
@@ -172,19 +181,45 @@ export default function EditProduct() {
         <input
           value={price}
           onChange={(e)=>setPrice(e.target.value)}
-          className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-black outline-none"
+          className="w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-black outline-none"
+        />
+      </div>
+
+      {/* ✅ MATERIAL */}
+      <div>
+        <label className="block text-sm font-semibold mb-2 text-gray-600">
+          Material Type
+        </label>
+        <input
+          value={materialType}
+          onChange={(e)=>setMaterialType(e.target.value)}
+          className="w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-black outline-none"
+          placeholder="e.g. Cotton, Silk"
+        />
+      </div>
+
+      {/* ✅ SLEEVES */}
+      <div>
+        <label className="block text-sm font-semibold mb-2 text-gray-600">
+          Sleeves Type
+        </label>
+        <input
+          value={sleevesType}
+          onChange={(e)=>setSleevesType(e.target.value)}
+          className="w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-black outline-none"
+          placeholder="e.g. Full Sleeve, Sleeveless"
         />
       </div>
 
       {/* DESCRIPTION */}
       <div>
         <label className="block text-sm font-semibold mb-2 text-gray-600">
-          Description
+          Description (one point per line)
         </label>
         <textarea
           value={description}
           onChange={(e)=>setDescription(e.target.value)}
-          className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-black outline-none"
+          className="w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-black outline-none"
         />
       </div>
 
@@ -196,7 +231,7 @@ export default function EditProduct() {
         <select
           value={availability}
           onChange={(e)=>setAvailability(e.target.value)}
-          className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-black outline-none"
+          className="w-full p-3 md:p-4 border rounded-xl focus:ring-2 focus:ring-black outline-none"
         >
           <option>In Stock</option>
           <option>Out Of Stock</option>
@@ -208,11 +243,11 @@ export default function EditProduct() {
         onDrop={handleDrop}
         onDragOver={(e)=>{e.preventDefault();setDragActive(true)}}
         onDragLeave={()=>setDragActive(false)}
-        className={`border-2 border-dashed p-10 rounded-xl text-center transition ${
+        className={`border-2 border-dashed p-6 md:p-10 rounded-xl text-center transition ${
           dragActive ? "border-blue-600 bg-gray-100" : "border-gray-300"
         }`}
       >
-        <p className="text-gray-600 mb-2 font-medium">
+        <p className="text-gray-600 mb-2 font-medium text-sm md:text-base">
           Drag & Drop images or click to upload 
         </p>
         <input type="file" multiple onChange={(e)=>handleFiles(e.target.files)} />
@@ -224,10 +259,10 @@ export default function EditProduct() {
           Existing Images
         </h3>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {existingImages.map((img,index)=>(
             <div key={img.id} className="relative group">
-              <img src={img.image} className="h-32 w-full object-cover rounded-lg"/>
+              <img src={img.image} className="h-28 md:h-32 w-full object-cover rounded-lg"/>
               <button
                 type="button"
                 onClick={()=>removeExistingImage(index)}
@@ -246,10 +281,10 @@ export default function EditProduct() {
           New Images
         </h3>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {newImages.map((img,index)=>(
             <div key={index} className="relative group">
-              <img src={URL.createObjectURL(img)} className="h-32 w-full object-cover rounded-lg"/>
+              <img src={URL.createObjectURL(img)} className="h-28 md:h-32 w-full object-cover rounded-lg"/>
               <button
                 type="button"
                 onClick={()=>removeNewImage(index)}
@@ -262,16 +297,20 @@ export default function EditProduct() {
         </div>
       </div>
 
-      {/* BUTTON */}
-     <div className="flex gap-4">
-       <button className="w-1/2 bg-gradient-to-r from-blue-400 to-blue-700 hover:from-blue-600 hover:to-blue-900 text-white py-3 rounded-xl font-semibold transition">
-        Save Changes
-      </button>
-      <button onClick={DeleteProduct} className="bg-red-600 text-white hover:bg-red-800 w-1/2 rounded-lg">
-        Delete
-      </button>
+      {/* BUTTONS */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <button className="w-full sm:w-1/2 bg-gradient-to-r from-blue-400 to-blue-700 hover:from-blue-600 hover:to-blue-900 text-white py-3 rounded-xl font-semibold transition">
+          Save Changes
+        </button>
 
-     </div>
+        <button 
+          type="button"
+          onClick={DeleteProduct} 
+          className="w-full sm:w-1/2 bg-red-600 text-white hover:bg-red-800 py-3 rounded-lg"
+        >
+          Delete
+        </button>
+      </div>
 
     </form>
 
