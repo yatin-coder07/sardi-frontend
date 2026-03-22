@@ -12,6 +12,11 @@ export default function CreateProduct() {
   const [description,setDescription] = useState("")
   const [availability,setAvailability] = useState("In Stock")
 
+  // 🔥 NEW STATES
+  const [materialType,setMaterialType] = useState("")
+  const [sleevesType,setSleevesType] = useState("half")
+  const [collection,setCollection] = useState("all")
+
   const [images,setImages] = useState([])
   const [dragActive,setDragActive] = useState(false)
 
@@ -70,8 +75,6 @@ export default function CreateProduct() {
       return
     }
 
-    const token = localStorage.getItem("access_token")
-
     const formData = new FormData()
 
     formData.append("product_name",productName)
@@ -79,17 +82,24 @@ export default function CreateProduct() {
     formData.append("product_description",description)
     formData.append("product_availability",availability)
 
+    // 🔥 ADD THESE (NO BREAK)
+    formData.append("material_type", materialType)
+    formData.append("sleeves_type", sleevesType)
+    formData.append("collection", collection)
+
     images.forEach(img=>{
       formData.append("images",img)
     })
 
-   const res = await ApiFetch("/api/products/create/", {
-  method: "POST",
-  body: formData
-})
- if(!res.ok){
-  alert("upload failed"), Error
- }
+    const res = await ApiFetch("/api/products/create/", {
+      method: "POST",
+      body: formData
+    })
+
+    if(!res || !res.ok){
+      alert("upload failed")
+      return
+    }
 
     alert("Product Created")
 
@@ -97,7 +107,7 @@ export default function CreateProduct() {
     setPrice("")
     setDescription("")
     setImages([])
-
+    setMaterialType("")
   }
 
   
@@ -122,7 +132,6 @@ return (
       <form onSubmit={handleSubmit} className="space-y-8">
 
         {/* Product Name */}
-
         <div className="space-y-2">
           <label className="text-sm font-semibold text-gray-700">
             Product Name
@@ -138,38 +147,29 @@ return (
           />
         </div>
 
-
         {/* Price */}
-
         <div className="space-y-2">
           <label className="text-sm font-semibold text-gray-700">
             Price
           </label>
 
          <input
-  type="number"
-   min="0"
-  value={price}
-  onChange={(e) => {
-
-    const value = e.target.value
-   
-
-    // allow only numbers + decimal
-    if (/^\d*\.?\d*$/.test(value)) {
-      setPrice(value)
-    }
-
-  }}
-  placeholder="1200"
-  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4
-  focus:outline-none focus:ring-2 focus:ring-black/70 transition"
-/>
+          type="number"
+          min="0"
+          value={price}
+          onChange={(e) => {
+            const value = e.target.value
+            if (/^\d*\.?\d*$/.test(value)) {
+              setPrice(value)
+            }
+          }}
+          placeholder="1200"
+          className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4
+          focus:outline-none focus:ring-2 focus:ring-black/70 transition"
+        />
         </div>
 
-
         {/* Description */}
-
         <div className="space-y-2">
           <label className="text-sm font-semibold text-gray-700">
             Description
@@ -184,9 +184,7 @@ return (
           />
         </div>
 
-
         {/* Availability */}
-
         <div className="space-y-2">
           <label className="text-sm font-semibold text-gray-700">
             Availability
@@ -203,11 +201,57 @@ return (
           </select>
         </div>
 
+        {/* 🔥 MATERIAL TYPE */}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-gray-700">
+            Material Type
+          </label>
 
-        {/* Image Upload */}
+          <input
+            value={materialType}
+            onChange={(e)=>setMaterialType(e.target.value)}
+            placeholder="Cotton, Silk..."
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4
+            focus:outline-none focus:ring-2 focus:ring-black/70"
+          />
+        </div>
 
+        {/* 🔥 SLEEVES TYPE */}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-gray-700">
+            Sleeves Type
+          </label>
+
+          <select
+            value={sleevesType}
+            onChange={(e)=>setSleevesType(e.target.value)}
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4"
+          >
+            <option value="half">Half Sleeves</option>
+            <option value="full">Full Sleeves</option>
+            <option value="sleeveless">Sleeveless</option>
+          </select>
+        </div>
+
+        {/* 🔥 COLLECTION */}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-gray-700">
+            Collection
+          </label>
+
+          <select
+            value={collection}
+            onChange={(e)=>setCollection(e.target.value)}
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4"
+          >
+            <option value="summer">Summer</option>
+            <option value="winter">Winter</option>
+            <option value="all">All Season</option>
+          </select>
+        </div>
+
+        {/* Image Upload (UNCHANGED ✅) */}
         <div className="space-y-3">
-
           <label className="text-sm font-semibold text-gray-700">
             Product Images
           </label>
@@ -219,10 +263,8 @@ return (
             className={`relative border-2 border-dashed rounded-2xl p-14 text-center transition
             ${dragActive
               ? "border-blue-500 bg-gray-100"
-              : "border-gray-300 bg-gray-50"}
-            `}
+              : "border-gray-300 bg-gray-50"}`}
           >
-
             <p className="text-lg font-medium text-gray-700">
               Drag & Drop images
             </p>
@@ -247,31 +289,17 @@ return (
             >
               Select Images
             </label>
-
           </div>
-
         </div>
 
-
-        {/* Preview */}
-
+        {/* Preview (UNCHANGED ✅) */}
         {images.length > 0 && (
-
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-
             {images.map((img,index)=>{
-
               const preview = URL.createObjectURL(img)
 
               return(
-
-                <motion.div
-                  key={index}
-                  initial={{scale:0.8,opacity:0}}
-                  animate={{scale:1,opacity:1}}
-                  className="relative group"
-                >
-
+                <motion.div key={index} className="relative group">
                   <img
                     src={preview}
                     className="h-32 w-full object-cover rounded-xl shadow-md"
@@ -285,20 +313,13 @@ return (
                   >
                     Remove
                   </button>
-
                 </motion.div>
-
               )
-
             })}
-
           </div>
-
         )}
 
-
         {/* Submit */}
-
         <motion.button
           whileTap={{scale:0.95}}
           whileHover={{scale:1.03}}

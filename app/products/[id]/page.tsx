@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import Comment from "@/components/Comment";
 import SkeletonLoading from "@/components/SkelitonLoading";
 import { ApiFetch } from "@/lib/ApiFetch";
 
@@ -202,6 +203,9 @@ export default function ProductDetailPage() {
         </div>
 
       </div>
+      <div className=" bg-gray-200 max-w-7xl mx-auto px-4 md:px-10 pb-10">
+  <Comment productId={product.id} user={user} />
+</div>
     </>
   );
 }
