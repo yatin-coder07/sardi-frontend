@@ -201,11 +201,11 @@ export default function ProductDetailPage() {
           </div>
 
         </div>
-
-      </div>
-      <div className=" bg-gray-200 max-w-7xl mx-auto px-4 md:px-10 pb-10">
+ <div className=" -w-7xl mx-auto px-4 md:px-10 pb-10">
   <Comment productId={product.id} user={user} />
 </div>
+      </div>
+     
     </>
   );
 }
