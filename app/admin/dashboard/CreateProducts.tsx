@@ -19,6 +19,7 @@ export default function CreateProduct() {
 
   const [images,setImages] = useState([])
   const [dragActive,setDragActive] = useState(false)
+  const [loading , setLoading] = useState(false)
 
   const handleFiles = (files) => {
 
@@ -64,6 +65,7 @@ export default function CreateProduct() {
   const handleSubmit = async (e) => {
 
     e.preventDefault()
+    setLoading(true)
 
     if(!productName || !price){
       alert("Product name and price required")
@@ -99,8 +101,9 @@ export default function CreateProduct() {
     if(!res || !res.ok){
       alert("upload failed")
       return
+      setLoading(false)
     }
-
+    setLoading(false)
     alert("Product Created")
 
     setProductName("")
@@ -326,7 +329,7 @@ return (
           className="w-full bg-blue-700 text-white py-4 rounded-xl text-lg
           font-semibold shadow-lg hover:shadow-xl transition"
         >
-          Create Product
+         {loading?" Creating....": "Create Product"}
         </motion.button>
 
       </form>

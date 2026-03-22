@@ -9,6 +9,7 @@ import { Search } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ApiFetch } from "@/lib/ApiFetch"
+import EmptyState from "@/components/EmptyState";
 
 export default function ProductsPage() {
 
@@ -19,13 +20,18 @@ export default function ProductsPage() {
   const router = useRouter()
 
   // 🔥 PRODUCTION SAFE FETCH
-const fetchProducts = async (query = "", retry = true) => {
+const fetchProducts = async (query = "", collection = "", retry = true) => {
   try {
     setLoading(true);
 
-    const res = await ApiFetch(`/api/products/?search=${query}`);
+    let url = `/api/products/?search=${query}`;
 
-    // 🔥 handle null (auth failed case)
+    if (collection) {
+      url += `&collection=${collection}`;
+    }
+
+    const res = await ApiFetch(url);
+
     if (!res) {
       setProducts([]);
       return;
@@ -41,10 +47,9 @@ const fetchProducts = async (query = "", retry = true) => {
   } catch (err) {
     console.error("❌ Fetch products error:", err);
 
-    // 🔥 retry only once AND only for network issues
     if (retry) {
       setTimeout(() => {
-        fetchProducts(query, false);
+        fetchProducts(query, collection, false);
       }, 1000);
       return;
     }
@@ -106,7 +111,32 @@ const fetchProducts = async (query = "", retry = true) => {
         Search
       </motion.button>
 
+      
     </form>
+   <div className="flex gap-3 mt-4 flex-wrap justify-center">
+
+  <button
+    onClick={() => fetchProducts("", "summer")}
+    className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition"
+  >
+    ☀️ Summer Collection
+  </button>
+
+  <button
+    onClick={() => fetchProducts("", "winter")}
+    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+  >
+    ❄️ Winter Collection
+  </button>
+
+  <button
+    onClick={() => fetchProducts()}
+    className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black transition"
+  >
+    🔄 All Products
+  </button>
+
+</div>
 
   </motion.div>
 
@@ -118,9 +148,7 @@ const fetchProducts = async (query = "", retry = true) => {
     {/* 🔥 EMPTY STATE (ONLY IF FAILED) */}
     {!loading && products.length === 0 ? (
       <div className="text-center py-16">
-        <p className="text-gray-500 mb-4">
-          Unable to load products
-        </p>
+       <EmptyState/>
         <button
           onClick={() => fetchProducts()}
           className="px-4 py-2 bg-black text-white rounded"

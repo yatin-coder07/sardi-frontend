@@ -31,13 +31,16 @@ const MediaContent = ({ mediaType }) => {
         initial={{ opacity: 0, y: 80 }}
         animate={{ opacity: 1, y: 0 }}
         className="
-          text-center
+       
           text-3xl sm:text-5xl md:text-7xl lg:text-8xl
-          font-extrabold tracking-tight
+          
+
+             bg-gradient-to-b from-foreground/20 via-foreground/10 to-transparent bg-clip-text text-transparent leading-none bottom-40 md:bottom-32 font-extrabold tracking-tighter pointer-events-none select-none text-center px-4
         "
       >
         PREMIUM KURTI COLLECTION
       </motion.h1>
+   
 
       <img
         src="/sardi.jpeg"

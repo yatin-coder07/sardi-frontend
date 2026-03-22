@@ -4,6 +4,7 @@ import {
   Phone,
   MessageCircle,
   Mail,
+  Instagram,
 } from "lucide-react";
 
 export default function FooterDemo() {
@@ -22,6 +23,11 @@ export default function FooterDemo() {
       icon: <Mail className="w-6 h-6" />,
       href: "https://mail.google.com/mail/?view=cm&fs=1&to=Palash.attri.123@gmail.com",
       label: "Email",
+    },
+     {
+      icon: <Instagram className="w-6 h-6" />,
+      href: "https://www.instagram.com/sardi_rv/?hl=en",
+      label: "Instagram",
     },
   ];
 
