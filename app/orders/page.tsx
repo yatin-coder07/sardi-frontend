@@ -34,6 +34,7 @@ export default function OrdersPage() {
     try {
       const res = await ApiFetch("/api/orders/my-orders/");
       const data = await res.json();
+      
       setOrders(data);
     } catch (err) {
       console.error(err);
@@ -119,7 +120,7 @@ export default function OrdersPage() {
         ) : (
           <div className="flex flex-col gap-6 w-full">
             {orders.map((order, index) => {
-              const step = getStep(order.order_status);
+              const step = getStep(order?.order_status || "PAID");
 
               // ✅ UPDATED CONDITION (added DELIVERED)
               const isDeletable =

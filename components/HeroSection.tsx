@@ -7,6 +7,7 @@ import { HoverSliderHero } from "./HoverSliderHero";
 import FooterDemo from "./Footer";
 import Link from "next/link";
 import { TestimonialsSectionDemo } from "./Testimonials";
+import Factory from "./Factory";
 
 const sampleMediaContent = {
   video: {
@@ -25,7 +26,7 @@ const sampleMediaContent = {
 
 const MediaContent = ({ mediaType }) => {
   return (
-    <div className="relative w-full flex flex-col items-center justify-center min-h-[40vh] gap-10 px-4">
+    <div className="relative w-full flex flex-col items-center justify-center min-h-[40vh] gap-10 px-4 mt-40 mb-40">
 
       <motion.h1
         initial={{ opacity: 0, y: 80 }}
@@ -123,6 +124,9 @@ const HeroSection = () => {
         </motion.div>
 
       </div>
+      <section>
+        <Factory/>
+      </section>
 
       {/* SLIDER */}
       <section>
