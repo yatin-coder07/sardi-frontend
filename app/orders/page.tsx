@@ -126,7 +126,7 @@ export default function OrdersPage() {
               const isDeletable =
                 !order.is_paid ||
                 order.order_status === "CANCELLED" ||
-                order.order_status === "DELIVERED";
+                order.order_status === "DELIVERED" ||order.order_status === "FAILED";
 
               return (
                 <motion.div
