@@ -10,6 +10,10 @@ const isTokenValid = (token: string) => {
   }
 };
 
+// 🔐 refresh control (prevents multiple refresh calls)
+let isRefreshing = false;
+let refreshPromise: Promise<string | null> | null = null;
+
 export const ApiFetch = async (url: string, options: any = {}) => {
   let access = localStorage.getItem("access_token");
   let refresh = localStorage.getItem("refresh_token");
@@ -18,55 +22,86 @@ export const ApiFetch = async (url: string, options: any = {}) => {
     ...(options.headers || {}),
   };
 
-  // ✅ ONLY attach token if valid
+  // ✅ attach token if valid
   if (access && isTokenValid(access)) {
     headers["Authorization"] = `Bearer ${access}`;
-  } else {
-    // 🔥 clean broken tokens
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    access = null;
   }
 
-  let res = await fetch(`${API_BASE}${url}`, {
-    ...options,
-    headers,
-  });
+  let res: Response;
 
-  // 🔥 If unauthorized AND we have refresh token
+  try {
+    res = await fetch(`${API_BASE}${url}`, {
+      ...options,
+      headers,
+    });
+  } catch (err) {
+    console.error("Network error:", err);
+    return new Response(JSON.stringify({ error: "Network error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // 🔥 HANDLE TOKEN EXPIRED (401)
   if (res.status === 401 && refresh) {
     try {
-      const refreshRes = await fetch(`${API_BASE}/api/auth/token/refresh/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refresh }),
-      });
+      // 🧠 prevent multiple refresh calls
+      if (!isRefreshing) {
+        isRefreshing = true;
 
-      if (refreshRes.ok) {
-        const data = await refreshRes.json();
+        refreshPromise = fetch(`${API_BASE}/api/auth/token/refresh/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ refresh }),
+        })
+          .then(async (r) => {
+            if (!r.ok) throw new Error("Refresh failed");
 
-        // ✅ save new access token
-        localStorage.setItem("access_token", data.access);
+            const data = await r.json();
 
-        headers["Authorization"] = `Bearer ${data.access}`;
+            localStorage.setItem("access_token", data.access);
+            return data.access;
+          })
+          .catch((err) => {
+            console.error("Refresh error:", err);
 
-        // 🔁 retry original request
-        res = await fetch(`${API_BASE}${url}`, {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+
+            return null;
+          })
+          .finally(() => {
+            isRefreshing = false;
+          });
+      }
+
+      const newAccess = await refreshPromise;
+
+      // ✅ retry original request
+      if (newAccess) {
+        headers["Authorization"] = `Bearer ${newAccess}`;
+
+        return await fetch(`${API_BASE}${url}`, {
           ...options,
           headers,
         });
-      } else {
-        // ❌ refresh failed → clear tokens
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-
-        return null; // 🔥 IMPORTANT FIX
       }
+
+      // ❌ refresh failed → force logout safe response
+      return new Response(JSON.stringify({ error: "Session expired" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+
     } catch (err) {
-      console.error("Refresh failed:", err);
-      return null;
+      console.error("Unexpected error:", err);
+
+      return new Response(JSON.stringify({ error: "Auth error" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
   }
 

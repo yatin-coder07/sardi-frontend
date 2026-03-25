@@ -33,7 +33,7 @@ export default function PaymentCheckoutForm({
   };
 
   const handlePayment = async () => {
-    console.log("FORM DATA:", form); // 🔥 DEBUG
+    // 🔥 DEBUG
 
     try {
       setLoading(true);
@@ -65,6 +65,7 @@ export default function PaymentCheckoutForm({
         order_id: data.razorpay_order_id,
 
         handler: async function (response) {
+          
           const verifyRes = await ApiFetch(`/api/orders/verify-payment/`, {
             method: "POST",
             headers: {
