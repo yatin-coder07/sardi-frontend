@@ -10,6 +10,17 @@ import SkeletonLoading from "@/components/SkelitonLoading";
 import { ApiFetch } from "@/lib/ApiFetch";
 import Navbar from "@/components/Navbar";
 import { Menu, X } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import {
   BarChart,
@@ -45,7 +56,7 @@ export default function AdminDashboard() {
     const res = await ApiFetch("/api/orders/admin/orders/");
     const data = await res.json();
     setOrders(data);
-    console.log(data)
+   
     setLoadingOrders(false);
   };
 
@@ -328,17 +339,45 @@ export default function AdminDashboard() {
         <option value="DELIVERED">DELIVERED</option>
       </select>
 
-      {order.order_status === "DELIVERED" || order.order_status === "CANCELLED" ?(
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            deleteOrder(order.id);
-          }}
-          className="bg-red-500 text-white px-3 py-2 rounded"
-        >
-          Delete
-        </button>
-      ):("")}
+      {(order.order_status === "DELIVERED" || order.order_status === "CANCELLED") && (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <button
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="bg-red-500 text-white px-3 py-2 rounded"
+                                    >
+                                      Delete
+                                    </button>
+                                  </AlertDialogTrigger>
+
+                                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>
+                                        Delete this order?
+                                      </AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        This action is permanent. This order will be removed forever.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>
+                                        Cancel
+                                      </AlertDialogCancel>
+
+                                      <AlertDialogAction
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          deleteOrder(order.id);
+                                        }}
+                                        className="bg-red-500 hover:bg-red-600"
+                                      >
+                                        Yes, Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              )}
 
     </div>
 
