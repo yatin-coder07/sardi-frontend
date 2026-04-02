@@ -12,7 +12,7 @@ const raleway = Raleway({
 });
 
 export const metadata: Metadata = {
-  title: "Sardi",
+  title: "Sardi By RV Shawls",
   description: "Minimal fashion clothing brand",
 };
 
